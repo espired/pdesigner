@@ -1,37 +1,30 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
+import EditorActions from "../store/EditorActions";
 import { useEditorState } from "../store/EditorContext";
-import IEditorObject from "../types/IEditorObject";
 
 export default function useActiveObject() {
-    const { state } = useEditorState();
-    const [activeObject, setActiveObject] = useState<IEditorObject>();
+    const { state, dispatch } = useEditorState();
 
-    const handleObjectSelected = useCallback(() => {
-        const activeObj = state.canvas?.getActiveObject() as IEditorObject;
-        !!activeObj && setActiveObject(activeObj);
-    }, [state.canvas, setActiveObject]);
-
-    const handleObjectDeselected = useCallback(() => {
-        setActiveObject(undefined);
-    }, [setActiveObject]);
+    const handleSelectedObject = useCallback(() => {
+        dispatch({ type: EditorActions.SET_SELECTED_OBJECT, payload: state.canvas?.getActiveObject() });
+    }, [state.canvas, dispatch]);
 
     useEffect(() => {
         if (!state.canvas) return;
         const canvas = state.canvas;
 
-        canvas.on('selection:updated', () => {
-            handleObjectDeselected();
-            handleObjectSelected();
-        });
-        canvas.on('selection:created', handleObjectSelected);
-        canvas.on('selection:cleared', handleObjectDeselected);
+        canvas.on('before:selection:cleared', handleSelectedObject);
+        canvas.on('selection:updated', handleSelectedObject);
+        canvas.on('selection:created', handleSelectedObject);
+        canvas.on('selection:cleared', handleSelectedObject);
 
         return () => {
+            canvas.off('before:selection:cleared');
             canvas.off('selection:cleared');
             canvas.off('selection:updated');
             canvas.off('selection:created');
         }
-    }, [state.canvas, handleObjectSelected, handleObjectDeselected]);
+    }, [state.canvas, handleSelectedObject]);
 
-    return activeObject;
+    return state.selectedObject;
 }

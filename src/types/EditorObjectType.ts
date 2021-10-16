@@ -1,6 +1,9 @@
 enum EditorObjectType {
     CLIP = 'clip',
-    TEXT = 'text'
+    TEXT = 'text',
+    GROUP = 'group',
+    SNAP = 'snap',
+    BLEED = 'bleed'
 }
 
 export default EditorObjectType;

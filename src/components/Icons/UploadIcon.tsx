@@ -1,0 +1,11 @@
+import { PropsWithChildren } from "react";
+import { SvgIcon } from "@streamelements/frontend-icons";
+import SvgIconProps from "../../types/SvgIconProps";
+
+export default function UploadIcon(props: PropsWithChildren<SvgIconProps>) {
+    return (
+        <SvgIcon {...props}>
+            <path d="M6.60359 10.1517H8.32846V15.5759C8.32846 16.1725 8.81663 16.6607 9.41329 16.6607H13.7526C14.3493 16.6607 14.8374 16.1725 14.8374 15.5759V10.1517H16.5623C17.5278 10.1517 18.016 8.98011 17.3325 8.29667L12.3532 3.31731C11.9301 2.89423 11.2466 2.89423 10.8236 3.31731L5.84421 8.29667C5.16077 8.98011 5.63809 10.1517 6.60359 10.1517ZM4 19.9152C4 20.5118 4.48817 21 5.08483 21H18.1028C18.6994 21 19.1876 20.5118 19.1876 19.9152C19.1876 19.3185 18.6994 18.8303 18.1028 18.8303H5.08483C4.48817 18.8303 4 19.3185 4 19.9152Z"/>
+        </SvgIcon>
+    )
+}

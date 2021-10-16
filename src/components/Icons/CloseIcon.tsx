@@ -1,0 +1,11 @@
+import { PropsWithChildren } from "react";
+import { SvgIcon } from "@streamelements/frontend-icons";
+import SvgIconProps from "../../types/SvgIconProps";
+
+export default function CloseIcon(props: PropsWithChildren<SvgIconProps>) {
+    return (
+        <SvgIcon {...props}>
+            <path d="M20.6007 3.41297C20.0683 2.88055 19.2082 2.88055 18.6758 3.41297L12 10.0751L5.32423 3.39932C4.79181 2.86689 3.93174 2.86689 3.39932 3.39932C2.86689 3.93174 2.86689 4.79181 3.39932 5.32423L10.0751 12L3.39932 18.6758C2.86689 19.2082 2.86689 20.0683 3.39932 20.6007C3.93174 21.1331 4.79181 21.1331 5.32423 20.6007L12 13.9249L18.6758 20.6007C19.2082 21.1331 20.0683 21.1331 20.6007 20.6007C21.1331 20.0683 21.1331 19.2082 20.6007 18.6758L13.9249 12L20.6007 5.32423C21.1195 4.80546 21.1195 3.93174 20.6007 3.41297V3.41297Z"/>
+        </SvgIcon>
+    )
+}

@@ -3,34 +3,31 @@ import './App.css';
 import { useCallback, useRef, useState } from "react";
 import IEditorRefActions from "./types/IEditorRefActions";
 import IEditorObject from "./types/IEditorObject";
-import * as stringUtils from "./utils/StringUtils";
-import CSS from 'csstype';
 import { useWindowSize } from 'usehooks-ts';
-import { downloadURI } from "./utils/DownloadUtils";
+// import { downloadURI } from "./utils/DownloadUtils";
+import { styled } from '@streamelements/frontend-ui';
+import ProductDetailsBlock from "./components/App/ProductDetailsBlock";
+import LayersBlock from "./components/App/LayersBlock";
 
-const layersContainer: CSS.Properties = {
+const Container = styled('div', {
   display: 'grid',
-  rowGap: '8px',
-  padding: '8px',
-  border: '1px solid #2d2d2d'
-}
-
-const containerStyle: CSS.Properties = {
-  height: '100vh',
-  display: 'grid',
-  gridTemplateColumns: '200px 1fr',
+  height: '100%',
+  backgroundColor: '$uiTertiary',
+  backgroundImage: 'radial-gradient($uiDisabled25 1px, transparent 0)',
+  backgroundSize: '10px 10px',
+  backgroundPosition: '-19px -19px',
+  gridTemplateColumns: 'max-content 1fr',
   overflow: 'hidden'
-}
+});
 
-const toolsContainerStyle: CSS.Properties = {
+const Sidebar = styled('div', {
+  width: 370,
+  margin: 'calc($base * 3)',
   display: 'grid',
-  gridAutoRows: 'max-content',
-  rowGap: '16px',
-  padding: '16px',
-  backgroundColor: '#efefef',
-}
-
-
+  rowGap: 'calc($base * 2)',
+  gridTemplateRows: 'max-content 1fr',
+  overflow: 'hidden'
+});
 
 function App() {
   const editorRef = useRef<IEditorRefActions>(null);
@@ -38,49 +35,38 @@ function App() {
   const [activeObject, setActiveObject] = useState<IEditorObject>();
   const { width, height } = useWindowSize();
 
-  const handleAddText = () => editorRef.current?.addText('okey dokey')
+  const handleAddText = () => editorRef.current?.addText('Hello World')
   const handleLayerClicked = (layer: IEditorObject) => editorRef.current?.selectLayer(layer);
-  const handleExportToPNGClicked = () => {
-    const contents = editorRef.current?.exportToPNG();
-    !!contents && downloadURI(contents, "Graphics.png");
-  }
+  // const handleExportToPNGClicked = () => {
+  //   const contents = editorRef.current?.exportToPNG();
+  //   !!contents && downloadURI(contents, "Graphics.png");
+  // }
 
   const onLayersChanged = useCallback((ls: IEditorObject[]) => setLayers(ls.reverse()), [setLayers])
   const onActiveObjectSelected = useCallback((l: IEditorObject | undefined) => setActiveObject(l), [setActiveObject]);
 
   return (
-    <div style={containerStyle}>
-      <div style={toolsContainerStyle}>
-        <button onClick={handleAddText}>Add Text</button>
-        <button onClick={handleExportToPNGClicked}>Export to png</button>
-        <div style={layersContainer}>
-          {!!layers.length ? layers.map((l, i) => (
-            <div
-              key={i}
-              style={{
-                fontWeight: activeObject === l ? 'bold' : 'normal',
-                opacity: l.locked ? '0.5' : '1'
-              }}
-              onClick={() => !l.locked && handleLayerClicked(l)}
-            >
-              {l.locked && <span>L</span>} {stringUtils.firstCharToUpperCase(l.objectType)} Layer
-            </div>
-          )) : (
-            <div>
-              No layers
-            </div>
-          )}
-        </div>
-      </div>
+    <Container>
+      <Sidebar>
+        <ProductDetailsBlock />
+        <LayersBlock
+          layers={layers}
+          handleLayerClicked={handleLayerClicked}
+          handleAddTextClicked={handleAddText}
+          activeObject={activeObject}
+        />
+      </Sidebar>
 
       <Editor
         ref={editorRef}
         options={{
+          fonts: ['Arial', 'Bungee', 'Share Tech Mono', 'Righteous', 'Squada One', 'Knewave', 'Oswald', 'Quicksand', 'Josefin Sans', 'Questrial', 'Fredoka One', 'Play', 'Carter One', 'Kaushan Script', 'Russo One', 'Orbitron', 'Fugaz One', 'Aldrich', 'Atomic Age', 'Ruge Boogy', 'Lobster', 'Architects Daughter', 'Futura'],
           width,
           height,
+          palette: ['#ffffff', '#000000'],
           boards: [
             {
-              name: "Center Front",
+              name: "Front",
               backgroundImage: "https://merch-cdn.streamelements.com/merch/products/preview/Bella-Canvas-3001_Front_light-yellow_2019-12-08.png",
               backgroundImageOverlay: "https://merch-cdn.streamelements.com/merch/products/preview/Bella_Canvas_3001_Front_Overlay_newOverlay.png",
               dimensions: {
@@ -96,19 +82,25 @@ function App() {
             },
             {
               name: "Back",
-              backgroundImage: "https://merch-cdn.streamelements.com/merch/products/preview/Bella-Canvas-3001_Front_Purple_2019-12-08.png",
-              backgroundImageOverlay: "https://merch-cdn.streamelements.com/merch/products/preview/Bella_Canvas_3001_Front_Overlay_newOverlay.png",
+              backgroundImage: "https://i.imgur.com/YSGdoru.png",
+              backgroundImageOverlay: "https://az412349.vo.msecnd.net/product-tshirts/Overlay/Back/Bella-3001/Bella_Canvas_3001_Back_Overlay_newOverlay.png",
               dimensions: {
-                width: 10100,
-                height: 10402,
+                width: 9475,
+                height: 9200,
               },
+              clip: {
+                left: 3029,
+                top: 1073,
+                width: 6629,
+                height: 5873
+              }
             }
           ],
           onLayersChanged: onLayersChanged,
           onActiveObjectSelected: onActiveObjectSelected,
         }}
       />
-    </div>
+    </Container>
   );
 }
 

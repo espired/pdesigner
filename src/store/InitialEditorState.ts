@@ -2,7 +2,7 @@ import IEditorState from "../types/IEditorState";
 
 
 const InitialEditorState: IEditorState = {
-    layers: []
+    layers: [],
 };
 
 export default InitialEditorState;
