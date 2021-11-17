@@ -5,6 +5,7 @@ import IEditorObject from "../../../types/IEditorObject";
 import { fabric } from 'fabric';
 import IEditorLineObject from "../../../types/IEditorLineObject";
 import IEditorGroupObject from "../../../types/IEditorGroupObject";
+import { v4 as uuid } from 'uuid';
 
 enum SnappingLines {
     Top = 'top',
@@ -26,8 +27,6 @@ export default function useGrid(container: IEditorObject) {
         const clipLayer = canvasObjects.find(o => o.objectType === EditorObjectType.CLIP);
 
         if(!clipLayer) return;
-
-        debugger;
 
         const clipBounds = clipLayer.getBoundingRect();
 
@@ -80,6 +79,7 @@ export default function useGrid(container: IEditorObject) {
 
         const snapGroup = new fabric.Group(snapGroupItems) as IEditorGroupObject;
         snapGroup.set({
+            id: uuid(),
             objectType: EditorObjectType.SNAP,
             evented: false,
             selectable: false,

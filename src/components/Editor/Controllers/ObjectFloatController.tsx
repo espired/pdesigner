@@ -2,6 +2,8 @@ import { styled, Card } from '@streamelements/frontend-ui';
 import { PropsWithChildren, useCallback, useEffect, useRef, useState } from 'react';
 import { useEditorState } from '../../../store/EditorContext';
 import EditorObjectType from '../../../types/EditorObjectType';
+import GroupController from './GroupController';
+import ImageController from './ImageController';
 import TextController from './TextController';
 
 const POPUP_OFFSET = 40;
@@ -18,6 +20,7 @@ export const FloatingActionsBar = styled(Card.Root, {
     borderRadius: '$base',
     maxWidth: 'max-content',
     zIndex: 2147483647,
+    width: 560,
 
     '@media (max-width: 1366px)': {
         maxWidth: 560,
@@ -98,7 +101,9 @@ export default function ObjectFloatController(props: PropsWithChildren<Props>) {
 
     return (
         <FloatingActionsBar ref={containerRef} style={{ top, left }} onClick={handleBarClick}>
+            {state.selectedObject?.objectType === EditorObjectType.GROUP && <GroupController />}
             {state.selectedObject?.objectType === EditorObjectType.TEXT && <TextController />}
+            {state.selectedObject?.objectType === EditorObjectType.IMAGE && <ImageController />}
         </FloatingActionsBar>
     )
 }

@@ -4,10 +4,8 @@ import App from './App';
 import EditorProvider from './store/EditorContext';
 
 ReactDOM.render(
-  <React.StrictMode>
-    <EditorProvider>
-      <App />
-    </EditorProvider>
-  </React.StrictMode>,
+  <EditorProvider>
+    <App />
+  </EditorProvider>,
   document.getElementById('root')
 );

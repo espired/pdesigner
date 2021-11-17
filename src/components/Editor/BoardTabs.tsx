@@ -17,7 +17,7 @@ export default function BoardTabs({ boards = [], onTabClick, activeBoard }: Prop
     }
 
     return (
-        <Tabs.Root onValueChange={handleTabClicked} defaultValue={boards[0]?.name}>
+        <Tabs.Root value={activeBoard?.name} onValueChange={handleTabClicked} defaultValue={boards[0]?.name}>
             <StyledTabs.List aria-label="Boards">
                 {!!boards.length && boards.map(b => (
                     <StyledTabs.Trigger value={b.name} key={b.name}>

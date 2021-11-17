@@ -1,0 +1,33 @@
+[
+    {
+        "name": "Front",
+        "supportsModelPreview": true,
+        "backgroundImage": "https://merch-cdn.streamelements.com/merch/products/preview/Bella-Canvas-3001_Front_light-yellow_2019-12-08.png",
+        "backgroundImageOverlay": "https://merch-cdn.streamelements.com/merch/products/preview/Bella_Canvas_3001_Front_Overlay_newOverlay.png",
+        "dimensions": {
+            "width": 10402,
+            "height": 10100
+        },
+        "clip": {
+            "left": 3066,
+            "top": 2111,
+            "width": 7566,
+            "height": 7811
+        }
+    },
+    {
+        "name": "Back",
+        "backgroundImage": "https://i.imgur.com/YSGdoru.png",
+        "backgroundImageOverlay": "https://az412349.vo.msecnd.net/product-tshirts/Overlay/Back/Bella-3001/Bella_Canvas_3001_Back_Overlay_newOverlay.png",
+        "dimensions": {
+            "width": 9475,
+            "height": 9200
+        },
+        "clip": {
+            "left": 3029,
+            "top": 1073,
+            "width": 6629,
+            "height": 5873
+        }
+    }
+]

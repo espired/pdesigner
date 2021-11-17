@@ -5,6 +5,9 @@ const StyledButton = styled(Button, {
         size: {
             small: {
                 padding: '0.5rem'
+            },
+            tiny: {
+                padding: 0
             }
         }
     }

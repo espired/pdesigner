@@ -12,7 +12,7 @@ export default function useWaitGroup() {
     const [count, setCount] = useState<number>(0);
 
     const add = (addCount: number = 1) => setCount(prevCount => prevCount + addCount);
-    const done = (doneCount: number = 1) => setCount(prevCount => (prevCount - doneCount) || 0)
+    const done = (doneCount: number = 1) => setCount(prevCount => Math.max(prevCount - doneCount, 0))
 
     const loader = (
         <Modal.Root open={count > 0}>

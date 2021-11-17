@@ -1,31 +1,61 @@
 
-import { ForwardedRef, forwardRef, PropsWithChildren, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
-import { styled, Card, Button } from '@streamelements/frontend-ui';
-import IEditorOptions from "../../types/IEditorOptions";
-import { fabric } from "fabric";
-import { useEditorState } from "../../store/EditorContext";
-import EditorActions from "../../store/EditorActions";
-import IEditorRefActions from "../../types/IEditorRefActions";
-import useEditorLayers from "../../hooks/useEditorLayers";
-import IEditorTextObject from "../../types/IEditorTextObject";
-import EditorObjectType from "../../types/EditorObjectType";
-import IEditorObject from "../../types/IEditorObject";
-import useActiveObject from "../../hooks/useActiveObject";
-import IEditorOptionsBoard from "../../types/IEditorOptionsBoard";
-import { usePrevious } from "../../hooks/usePrevious";
-import isEqual from 'lodash/isEqual';
-import { getScaleFromBounds } from "../../utils/NumberUtils";
-import BoardTabs from "./BoardTabs";
-import useWaitGroup from "../../hooks/useWaitGroup";
-import ObjectFloatController from "./Controllers/ObjectFloatController";
-import { v4 as uuid } from 'uuid';
-import WebFontLoader from 'webfontloader';
-import IEditorLineObject from "../../types/IEditorLineObject";
-import IEditorGroupObject from "../../types/IEditorGroupObject";
-import StyledButton from "./StyledButton";
-import SettingsModal from "./Modals/SettingsModal";
-import { QuestionMarkIcon } from "../Icons";
+import { ForwardedRef, forwardRef, lazy, PropsWithChildren, Suspense, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import HotKeysProvider from "./HotKeysProvider";
+import EditorActions from "../../store/EditorActions";
+import { useEditorState } from "../../store/EditorContext";
+import { getScaleFromBounds } from "../../utils/NumberUtils";
+import { styled } from '@streamelements/frontend-ui';
+import { addImage, addShape, addText, updateLayersOrder } from "./EditorCanvasActions";
+
+// #region external libraries
+import { fabric } from "fabric";
+import { v4 as uuid } from 'uuid';
+import isEqual from 'lodash/isEqual';
+import WebFontLoader from 'webfontloader';
+// #endregion
+
+// #region hooks
+import useWaitGroup from "../../hooks/useWaitGroup";
+import { usePrevious } from "../../hooks/usePrevious";
+import useEditorLayers from "../../hooks/useEditorLayers";
+import useActiveObject from "../../hooks/useActiveObject";
+// #endregion
+
+// #region types
+import IEditorObject from "../../types/IEditorObject";
+import IEditorOptions from "../../types/IEditorOptions";
+import EditorObjectType from "../../types/EditorObjectType";
+import IEditorClipObject from "../../types/IEditorClipObject";
+import IEditorLineObject from "../../types/IEditorLineObject";
+import IEditorRefActions from "../../types/IEditorRefActions";
+import IEditorGroupObject from "../../types/IEditorGroupObject";
+import IEditorOptionsBoard from "../../types/IEditorOptionsBoard";
+import { useElementSize } from "usehooks-ts";
+// #endregion
+
+// #region dynamic imports
+const ObjectFloatController = lazy(() => import('./Controllers/ObjectFloatController'));
+const PreviewModal = lazy(() => import('./Modals/PreviewModal'));
+const EditorControl = lazy(() => import('./EditorControl'));
+const Debugger = lazy(() => import('./Debugger'));
+// #endregion
+
+const datalesssJsonProps = [
+    'width',
+    'height',
+    'objectType',
+    'locked',
+    'layerName',
+    'selectable',
+    'hasControls',
+    'hoverCursor',
+    'hiddenLayer',
+    'capitalize',
+    'verticalText',
+    'absolutePositioned',
+    'objectCaching',
+    'errored'
+];
 
 declare global {
     interface Window { boardContents: any }
@@ -35,42 +65,34 @@ interface props {
     options: IEditorOptions
 }
 
-const Container = styled('div', {
+const Root = styled('div', {
     display: 'grid',
-    gridTemplateRows: 'max-content 1fr 32px',
+    gridTemplateRows: '72px 1fr 8px',
+    rowGap: 'calc($base * 3)',
     overflow: 'hidden'
 });
 
-const TopBarContainer = styled(Card.Root, {
-    padding: 'calc($base * 2)',
-    my: 'calc($base * 3)',
-    mr: 'calc($base * 3)',
-    ml: 0,
+const CanvasContainer = styled('div', {
     display: 'grid',
-    gridTemplateColumns: 'max-content 1fr',
-    alignItems: 'center'
+    placeItems: 'center',
+    height: '100%',
+    overflow: 'hidden',
+    position: 'relative'
 });
-
-const Toolbar = styled('div', {
-    display: 'grid',
-    gridAutoFlow: 'column',
-    columnGap: '$base',
-    placeContent: 'flex-end'
-})
 
 const Editor = forwardRef((props: PropsWithChildren<props>, ref: ForwardedRef<IEditorRefActions>) => {
     const { state, dispatch } = useEditorState();
+    const [previewModalOpen, setPreviewModalOpen] = useState<boolean>(false);
+    const [activeBoard, setActiveBoard] = useState<IEditorOptionsBoard>();
+    const [scale, setScale] = useState<number>(1);
+
     const containerRef = useRef<HTMLDivElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
-    // const { loader, add, done } = useWaitGroup();
+    const containerSize = useElementSize(containerRef);
     const waitGroup = useWaitGroup();
-
     const layers = useEditorLayers();
     const activeObject = useActiveObject();
-
-    const [activeBoard, setActiveBoard] = useState<IEditorOptionsBoard>();
-
     const prevBoards = usePrevious(props.options.boards);
     const prevBoard = usePrevious(activeBoard);
 
@@ -132,8 +154,7 @@ const Editor = forwardRef((props: PropsWithChildren<props>, ref: ForwardedRef<IE
         });
         canvas.add(snapGroup);
         canvas.sendToBack(snapGroup);
-    }, [state.canvas])
-
+    }, [state.canvas]);
 
     useEffect(() => {
         if (state.canvas || !props.options) return;
@@ -154,45 +175,19 @@ const Editor = forwardRef((props: PropsWithChildren<props>, ref: ForwardedRef<IE
             });
         }
 
-    }, [props.options, state.canvas, waitGroup, dispatch])
+    }, [props.options, state.canvas, waitGroup, dispatch]);
 
     useEffect(() => {
-        if (!activeBoard || !state.canvas || isEqual(prevBoard?.name, activeBoard.name) || !containerRef.current) return;
-
-        if (!window["boardContents"]) {
-            window["boardContents"] = {};
-        }
-
-        if (prevBoard) {
-            window["boardContents"][prevBoard.name] = state.canvas.toJSON([
-                'objectType',
-                'locked',
-                'layerName',
-                'selectable',
-                'hasControls',
-                'hoverCursor',
-                'hiddenLayer',
-                'capitalize',
-                'verticalText',
-                'absolutePositioned',
-                'objectCaching',
-                'errored'
-            ]);
-        }
-
-        state.canvas.clear();
-
-        const boardContents = window["boardContents"][activeBoard.name];
-
-        if (boardContents) {
-            state.canvas?.loadFromJSON(boardContents, () => {
-                state.canvas?.renderAll();
-            });
-            return;
+        if (!activeBoard || !state.canvas || isEqual(prevBoard, activeBoard) || !containerRef.current) return;
+        
+        if(!props.options.preserveGraphicsOnBoardChange) {
+            state.canvas.clear();
         }
 
         const containerBounds = containerRef.current.getBoundingClientRect();
-        const boundsScale = getScaleFromBounds(containerBounds, activeBoard.dimensions);
+        let boundsScale = Math.min(getScaleFromBounds(containerBounds, activeBoard.dimensions), 1);
+
+        setScale(boundsScale);
 
         const newCanvasDimensions = {
             width: Math.floor(activeBoard.dimensions.width * boundsScale),
@@ -201,11 +196,11 @@ const Editor = forwardRef((props: PropsWithChildren<props>, ref: ForwardedRef<IE
 
         state.canvas.setDimensions(newCanvasDimensions);
 
-        if (activeBoard.backgroundColor) {
+        if (!!activeBoard.backgroundColor) {
             state.canvas.setBackgroundColor(activeBoard.backgroundColor, () => state.canvas?.renderAll());
         }
 
-        if (activeBoard.backgroundImage) {
+        if (!!activeBoard.backgroundImage) {
             waitGroup.add();
             fabric.Image.fromURL(activeBoard.backgroundImage, (img) => {
                 const iw = img.getScaledWidth();
@@ -221,7 +216,7 @@ const Editor = forwardRef((props: PropsWithChildren<props>, ref: ForwardedRef<IE
                     waitGroup.done();
                 }, imageScaleProps);
 
-                if (activeBoard.backgroundImageOverlay) {
+                if (!!activeBoard.backgroundImageOverlay) {
                     waitGroup.add();
                     fabric.Image.fromURL(activeBoard.backgroundImageOverlay, (oimg) => {
                         const overlayImageProps = {
@@ -246,36 +241,43 @@ const Editor = forwardRef((props: PropsWithChildren<props>, ref: ForwardedRef<IE
                 height: Math.floor((activeBoard.clip.height - activeBoard.clip.top) * boundsScale),
                 width: Math.floor((activeBoard.clip.width - activeBoard.clip.left) * boundsScale),
             }
-            const newRect = new fabric.Rect({
-                ...newClipBounds,
-                hoverCursor: 'default',
-                stroke: "#000000",
-                strokeWidth: 1,
-                strokeDashArray: [5, 5],
-                fill: 'transparent',
-                objectCaching: false,
-                hasControls: false,
-                selectable: false,
-                evented: false,
-                absolutePositioned: true,
-            }) as IEditorObject;
 
-            newRect.set({
-                id: uuid(),
-                objectType: EditorObjectType.CLIP,
-                locked: true
-            })
-            state.canvas.add(newRect);
+            const existingClipLayer = (state.canvas?.getObjects() as IEditorObject[]).find(o => o.get('objectType') === EditorObjectType.CLIP);
 
-            generateGrid();
+            if(props.options.preserveGraphicsOnBoardChange && existingClipLayer) {
+                existingClipLayer.set({ ...newClipBounds });
+            } else {
+                const newRect = new fabric.Rect({
+                    ...newClipBounds,
+                    hoverCursor: 'default',
+                    stroke: "#000000",
+                    strokeWidth: 1,
+                    strokeDashArray: [5, 5],
+                    fill: 'transparent',
+                    objectCaching: false,
+                    hasControls: false,
+                    selectable: false,
+                    evented: false,
+                    absolutePositioned: true,
+                }) as IEditorClipObject;
+    
+                newRect.set({
+                    id: uuid(),
+                    objectType: EditorObjectType.CLIP,
+                    locked: true,
+                    clipScale: boundsScale
+                })
+                state.canvas.add(newRect);
+    
+                generateGrid();
+            }
         }
 
         state.canvas?.renderAll();
-
-    }, [state.canvas, activeBoard, prevBoard, waitGroup, generateGrid]);
+    }, [state.canvas, props.options.preserveGraphicsOnBoardChange, props.options.boards, activeBoard, activeBoard?.name, prevBoard, containerRef, waitGroup, generateGrid]);
 
     useEffect(() => {
-        if (isEqual(prevBoards, props.options.boards)) return;
+        if (!props.options.boards.length || isEqual(prevBoards, props.options.boards)) return;
         setActiveBoard(props.options.boards[0]);
     }, [props.options.boards, prevBoards]);
 
@@ -287,39 +289,59 @@ const Editor = forwardRef((props: PropsWithChildren<props>, ref: ForwardedRef<IE
     }, [canvasRef, dispatch, state.canvas]);
 
     useEffect(() => {
+        if(!state.canvas || !activeBoard) return;
+
+        let canvasH = activeBoard.dimensions.height;
+        let canvasW = activeBoard.dimensions.width;
+
+        const { height, width } = containerSize;
+        const scale = Math.min((height / canvasH), (width / canvasW));
+
+        state.canvas.setDimensions({
+            width: canvasW * scale,
+            height: canvasH * scale
+        });
+
+        // state.canvas.setZoom(1 * scale);
+        state.canvas.renderAll();
+
+    }, [state.canvas, containerSize, activeBoard]);
+
+    useEffect(() => {
         const callbackFn = props.options.onLayersChanged;
         callbackFn && callbackFn(layers);
-    }, [layers, props.options.onLayersChanged])
+    }, [layers, props.options.onLayersChanged]);
 
     useEffect(() => {
         const callbackFn = props.options.onActiveObjectSelected;
         callbackFn && callbackFn(activeObject);
-    }, [activeObject, props.options.onActiveObjectSelected])
+    }, [activeObject, props.options.onActiveObjectSelected]);
 
     useImperativeHandle(ref, (): IEditorRefActions => ({
-        addText: (text: string) => {
-            const newTextObject = new fabric.IText(text) as IEditorTextObject;
-            newTextObject.objectType = EditorObjectType.TEXT;
-            newTextObject.id = uuid();
+        toggleLayerLock: (layer: IEditorObject) => {
 
-            if (activeBoard?.clip) {
-                const canvasObjects = state.canvas?.getObjects() as IEditorObject[];
-                const clipPathElem = canvasObjects.find((o) => o.objectType === EditorObjectType.CLIP);
-                if (clipPathElem) {
-                    const clipBounds = clipPathElem.getBoundingRect();
-                    newTextObject.set({
-                        clipPath: clipPathElem,
-                        top: clipBounds.top,
-                        left: clipBounds.left,
-                        fontFamily: 'Arial'
-                    });
-
-                    state.canvas?.sendToBack(clipPathElem);
-                }
-            }
-
-            state.canvas?.add(newTextObject);
+        },
+        toggleLayerVisibility: (layer: IEditorObject) => {
+            
+        },
+        deleteLayer: (layer: IEditorObject) => {
+            state.canvas?.remove(layer);
+            state.canvas?.discardActiveObject();
             state.canvas?.renderAll();
+        },
+        addText: (text: string) => addText(state, text),
+        addShape: (shapeUrl: string, name?: string) => addShape(state, shapeUrl, name),
+        addImage: (imgUrl: string, name?: string) => {
+            if (!!activeBoard) {
+                waitGroup.add();
+                const elem = new Image();
+                elem.crossOrigin = 'anonymous';
+                elem.src = imgUrl + `?dc=${Date.now()}`;
+                elem.onload = () =>
+                    addImage(state, activeBoard, elem, name || 'image', () =>
+                        waitGroup.done()
+                    )
+            }
         },
         selectLayer: (layer: IEditorObject) => {
             state.canvas?.discardActiveObject();
@@ -329,37 +351,56 @@ const Editor = forwardRef((props: PropsWithChildren<props>, ref: ForwardedRef<IE
             state.canvas?.setActiveObject(sel);
             state.canvas?.renderAll();
         },
+        reorderLayers: (layers: IEditorObject[]) => {
+            if (!state.canvas) return;
+            const newLayersArr = updateLayersOrder(state.canvas, layers);
+            const callbackFn = props.options.onLayersChanged;
+            callbackFn && callbackFn(newLayersArr);
+        },
         exportToPNG: () => {
-            return state.canvas?.toDataURL();
+            if (!state.canvas) return;
+            return state.canvas.toDatalessJSON();
+        },
+        loadFromJSON: (contents: string) => {
+            state.canvas?.loadFromJSON(contents, () => state.canvas?.renderAll());
         }
     }));
 
     return (
-        <>
+        <Root>
             {waitGroup.loader}
-            <Container>
-                <TopBarContainer>
-                    <BoardTabs onTabClick={setActiveBoard} boards={props.options.boards} activeBoard={activeBoard} />
-                    <Toolbar>
-                        <StyledButton color='neutral' size='small' variant='ghost'>
-                            <QuestionMarkIcon />
-                        </StyledButton>
-                        <SettingsModal />
-                        <StyledButton color='neutral' size='small' variant='ghost'>
-                            3D
-                        </StyledButton>
-                        <Button variant='outlined'>Preview</Button>
-                        <Button>Save</Button>
-                    </Toolbar>
-                </TopBarContainer>
-                <HotKeysProvider>
-                    <div ref={containerRef} style={{ display: 'grid', placeItems: 'center', height: '100%', overflow: 'hidden' }}>
-                        <canvas ref={canvasRef} style={{ height: '100%' }} />
-                    </div>
-                </HotKeysProvider>
-                {state.selectedObject && <ObjectFloatController />}
-            </Container>
-        </>
+
+            <Suspense fallback={<></>}>
+                <PreviewModal
+                    open={previewModalOpen}
+                    onOpenChange={setPreviewModalOpen}
+                />
+            </Suspense>
+
+            <Suspense fallback={<div />}>
+                <EditorControl
+                    boards={props.options.boards}
+                    activeBoard={activeBoard}
+                    onTabClicked={setActiveBoard}
+                    onPreviewClicked={() => setPreviewModalOpen(true)}
+                    onSaveClicked={() => props.options.onSave && props.options.onSave(state.canvas?.toJSON(datalesssJsonProps) || '')}
+                />
+            </Suspense>
+
+            <HotKeysProvider>
+                <CanvasContainer ref={containerRef}>
+                    <canvas ref={canvasRef} style={{ height: '100%', width: '100%' }} />
+                </CanvasContainer>
+            </HotKeysProvider>
+
+            <Suspense fallback={<></>}>
+                {!!state.selectedObject && <ObjectFloatController />}
+            </Suspense>
+
+            <Suspense fallback={<></>}>
+                <Debugger scale={scale} activeBoard={activeBoard} />
+            </Suspense>
+        </Root>
     )
 })
 

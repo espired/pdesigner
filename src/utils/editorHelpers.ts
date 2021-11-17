@@ -1,10 +1,10 @@
 import EditorObjectType from "../types/EditorObjectType";
 import IEditorObject from "../types/IEditorObject";
-import IEditorState from "../types/IEditorState";
+import { fabric } from 'fabric';
 
-export function setEditorObjectProp(state: IEditorState, key: any, value: string | number | boolean | undefined): void {
-    if(!state.canvas || !state.selectedObject || value === undefined) return;
-    const activeObject: IEditorObject = state.selectedObject;
+export function setEditorObjectProp(key: any, value: string | number | boolean | undefined, canvas?: fabric.Canvas, selectedObject?: IEditorObject): void {
+    if(!canvas || !selectedObject || value === undefined) return;
+    const activeObject: IEditorObject = selectedObject;
 
     if(activeObject.get(key) === value) return;
 
@@ -17,7 +17,7 @@ export function setEditorObjectProp(state: IEditorState, key: any, value: string
     }
 
     activeObject.setCoords();
-    state.canvas.fire('object:manualChanged');
-
-    state.canvas.renderAndReset();
+    
+    canvas.fire('object:manualChanged');
+    canvas.renderAndReset();
 }

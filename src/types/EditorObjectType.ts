@@ -3,7 +3,9 @@ enum EditorObjectType {
     TEXT = 'text',
     GROUP = 'group',
     SNAP = 'snap',
-    BLEED = 'bleed'
+    BLEED = 'bleed',
+    IMAGE = 'image',
+    SHAPE = 'shape'
 }
 
 export default EditorObjectType;

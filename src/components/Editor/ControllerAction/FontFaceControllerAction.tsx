@@ -4,6 +4,7 @@ import { useEditorState } from "../../../store/EditorContext";
 import ThemedSelect from "../../ThemedSelect";
 import { ActionBlock } from "../Editor.style";
 import { setEditorObjectProp } from '../../../utils/editorHelpers';
+import IEditorTextObject from "../../../types/IEditorTextObject";
 
 const StyledOption = styled('div', {
     padding: '$base calc($base * 2)',
@@ -26,13 +27,21 @@ export default function FontFaceControllerAction() {
     };
 
     useEffect(() => {
+        if (!state.canvas) return;
+        const activeObject = state.canvas?.getActiveObject() as IEditorTextObject;
+        const loadedValue = activeObject.get('fontFamily');
+
+        !!loadedValue && setValue(loadedValue as string);
+    }, [state.canvas]);
+
+    useEffect(() => {
         // @ts-ignore 
         setValue(state.selectedObject?.get('fontFamily') || 'Arial');
     }, [state.selectedObject, state])
-
+    
     useEffect(() => {
-        setEditorObjectProp(state, 'fontFamily', value || '');
-    }, [value, state]);
+        !!value && setEditorObjectProp('fontFamily', value, state.canvas, state.selectedObject);
+    }, [value, state.canvas, state.selectedObject]);
 
     useEffect(() => {
         if (!state.options || !state.options.fonts) return;

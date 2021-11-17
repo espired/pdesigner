@@ -1,0 +1,124 @@
+{
+    "bundles" : [
+        {
+            "name" : "Pride",
+            "images": [
+                {
+                    "name": "Pride Gaming",
+                    "path": "/bundles/images/pride/gaming.png",
+                    "thumbnail" : "/bundles/thumbnails/pride/gaming.png"
+                },
+                {
+                    "name": "Pride Women hands",
+                    "path": "/bundles/images/pride/Pride_Art_1.png",
+                    "thumbnail" : "/bundles/thumbnails/pride/Pride_Art_1.png"
+                },
+                {
+                    "name": "Pride TV Full color",
+                    "path": "/bundles/images/pride/Pride_Art_2.png",
+                    "thumbnail" : "/bundles/thumbnails/pride/Pride_Art_2.png"
+                },
+                {
+                    "name": "Pride Controller",
+                    "path": "/bundles/images/pride/Pride_Art_3.png",
+                    "thumbnail" : "/bundles/thumbnails/pride/Pride_Art_3.png"
+                },
+                {
+                    "name": "Pride Stronger",
+                    "path": "/bundles/images/pride/Pride_Art_4.png",
+                    "thumbnail" : "/bundles/thumbnails/pride/Pride_Art_4.png"
+                },
+                {
+                    "name": "Pride Trophy",
+                    "path": "/bundles/images/pride/Pride_Art_5.png",
+                    "thumbnail" : "/bundles/thumbnails/pride/Pride_Art_5.png"
+                },
+                {
+                    "name": "Pride Select Character Alt",
+                    "path": "/bundles/images/pride/select_your_character_alternative.png",
+                    "thumbnail" : "/bundles/thumbnails/pride/select_your_character_alternative.png"
+                },
+                {
+                    "name": "Pride Select Character",
+                    "path": "/bundles/images/pride/select_your_character.png",
+                    "thumbnail" : "/bundles/thumbnails/pride/select_your_character.png"
+                },
+                {
+                    "name": "Pride Share Love",
+                    "path": "/bundles/images/pride/share_love.png",
+                    "thumbnail" : "/bundles/thumbnails/pride/share_love.png"
+                },
+                {
+                    "name": "Pride Streaming Love",
+                    "path": "/bundles/images/pride/streaming_love.png",
+                    "thumbnail" : "/bundles/thumbnails/pride/streaming_love.png"
+                },
+                {
+                    "name": "Pride You Win",
+                    "path": "/bundles/images/pride/you_win.png",
+                    "thumbnail" : "/bundles/thumbnails/pride/you_win.png"
+                },
+                {
+                    "name": "Pride Gaming White",
+                    "path": "/bundles/images/pride/gaming_white.png",
+                    "thumbnail" : "/bundles/thumbnails/pride/gaming_white.png"
+                },
+                {
+                    "name": "Pride Select Character White",
+                    "path": "/bundles/images/pride/select_your_character_white.png",
+                    "thumbnail" : "/bundles/thumbnails/pride/select_your_character_white.png"
+                },
+                {
+                    "name": "Pride Select Character Alt White",
+                    "path": "/bundles/images/pride/select_your_character_alternative_white.png",
+                    "thumbnail" : "/bundles/thumbnails/pride/select_your_character_alternative_white.png"
+                },
+                {
+                    "name": "Pride Share Love White",
+                    "path": "/bundles/images/pride/share_love_white.png",
+                    "thumbnail" : "/bundles/thumbnails/pride/share_love_white.png"
+                },
+                {
+                    "name": "Pride You Win White",
+                    "path": "/bundles/images/pride/you_win_white.png",
+                    "thumbnail" : "/bundles/thumbnails/pride/you_win_white.png"
+                },
+                {
+                    "name": "Pride Social Distance",
+                    "path": "/bundles/images/pride/i_social_distanced_with__pride_flag_.png",
+                    "thumbnail" : "/bundles/thumbnails/pride/i_social_distanced_with__pride_flag_.png"
+                },
+                {
+                    "name": "Pride Social Distance Dark",
+                    "path": "/bundles/images/pride/i_social_distanced_with__dark_copy_.png",
+                    "thumbnail" : "/bundles/thumbnails/pride/i_social_distanced_with__dark_copy_.png"
+                }
+            ]
+        },
+        {
+            "name" : "E3",
+            "images": [
+                {
+                    "name": "E3 Gaming Since",
+                    "path": "/bundles/images/e3/Gaming_since.png",
+                    "thumbnail" : "/bundles/thumbnails/e3/Gaming_since.png"
+                },
+                {
+                    "name": "E3 I Miss",
+                    "path": "/bundles/images/e3/I_miss_E3.png",
+                    "thumbnail" : "/bundles/thumbnails/e3/I_miss_E3.png"
+                },
+                {
+                    "name": "E3 Social Distance Dark",
+                    "path": "/bundles/images/e3/I_social_distanced_with_dark.png",
+                    "thumbnail" : "/bundles/thumbnails/e3/I_social_distanced_with_dark.png"
+                },
+                {
+                    "name": "E3 Social Distance Light",
+                    "path": "/bundles/images/e3/I_social_distanced_with_light.png",
+                    "thumbnail" : "/bundles/thumbnails/e3/I_social_distanced_with_light.png"
+                }
+            ]
+        }
+    ]
+}

@@ -63,6 +63,11 @@ const styledSelect = css({
 
     variants: {
         size: {
+            tiny: {
+                '[data-component-name=SelectInput]': {
+                    width: 20
+                },
+            },
             small: {
                 '[data-component-name=SelectInput]': {
                     width: 50

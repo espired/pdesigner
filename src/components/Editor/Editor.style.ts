@@ -1,4 +1,14 @@
-import { styled, Text } from '@streamelements/frontend-ui';
+import { styled, Text, css } from '@streamelements/frontend-ui';
+
+export const smallIcon = css({ fontSize: '1.125rem !important' })();
+export const mediumIcon = css({ fontSize: '1.25rem !important' })();
+export const whiteIcon = css({ color: '#fff !important' })();
+export const smallIconButton = css({
+    paddingLeft: '1rem',
+    paddingRight: '1rem'
+})();
+
+export const midGreyText = css({ color: '$textPrimary50' })();
 
 export const ActionBlock = styled('div', {
     display: 'grid',
@@ -25,7 +35,6 @@ export const ActionBlock = styled('div', {
         }
     }
 });
-
 
 export const ActionTitle = styled(Text.Body, {
     margin: 0

@@ -2,7 +2,7 @@ import { PropsWithChildren } from 'react';
 import { HotKeys } from 'react-keyboard';
 import useHistoryClipboard from '../../hooks/useHistoryClipboard';
 import { useEditorState } from '../../store/EditorContext';
-import { cloneObject, moveObjHorizontal, moveObjVertical, removeObject, selectAll } from './EditorCanvasActions';
+import { cloneObject, groupObjects, moveObjHorizontal, moveObjVertical, removeObject, selectAll, ungroupObjects, unselectItem } from './EditorCanvasActions';
 
 const hotKeysMap = {
     delete: ['del', 'backspace'],
@@ -20,7 +20,8 @@ const hotKeysMap = {
     copy: ['command+c', 'control+c', 'ctrl+c'],
     paste: ['command+v', 'control+v', 'ctrl+v'],
     undo: ['command+z', 'control+z', 'ctrl+z'],
-    redo: ['command+shift+z', 'control+shift+z', 'ctrl+shift+z']
+    redo: ['command+shift+z', 'control+shift+z', 'ctrl+shift+z'],
+    unselect: ['esc']
 };
 
 export default function HotKeysProvider(props: PropsWithChildren<{}>) {
@@ -37,11 +38,11 @@ export default function HotKeysProvider(props: PropsWithChildren<{}>) {
             },
             group: (e: Event) => {
                 e.preventDefault();
-                console.log("Hotkeys: Group Objects");
+                groupObjects(state);
             },
             ungroup: (e: Event) => {
                 e.preventDefault();
-                console.log("Hotkeys: Ungroup Object");
+                ungroupObjects(state);
             },
             selectAll: (e: Event) => {
                 e.preventDefault();
@@ -95,6 +96,10 @@ export default function HotKeysProvider(props: PropsWithChildren<{}>) {
                 e.preventDefault();
                 console.log("Hotkeys: Redo History");
             },
+            unselect: (e: Event) => {
+                e.preventDefault();
+                unselectItem(state);
+            }
         }
     })();
 

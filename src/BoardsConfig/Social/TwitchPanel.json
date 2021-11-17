@@ -1,0 +1,8 @@
+{
+    "backgroundColor": "#ffffff",
+    "name": "Twitch Panel",
+    "dimensions": {
+        "width": 320,
+        "height": 200
+    }
+}
